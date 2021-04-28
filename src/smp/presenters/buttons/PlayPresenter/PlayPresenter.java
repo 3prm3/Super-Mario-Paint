@@ -1,4 +1,4 @@
-package smp.presenters.buttons;
+package smp.presenters.buttons.PlayPresenter;
 
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.value.ChangeListener;
@@ -23,6 +23,12 @@ public class PlayPresenter extends ImageRadioButton {
 	//====Models====
     private ObjectProperty<ProgramState> programState;
 
+    /**
+     * This is a service that will help run the animation and sound of playing a
+     * song.
+     */
+    private AnimationService animationService;
+
 	/**
      * Instantiates the Play button on the staff
      *
@@ -39,6 +45,8 @@ public class PlayPresenter extends ImageRadioButton {
         releaseImage();
         isPressed = false;
         
+        animationService = new AnimationService();
+        
         this.programState = StateMachine.getState();
         setupViewUpdater();
     }
@@ -48,7 +56,6 @@ public class PlayPresenter extends ImageRadioButton {
 
 			@Override
 			public void changed(ObservableValue<? extends Object> observable, Object oldValue, Object newValue) {
-				//TODO: instead of this listener, link with stop?
 				if (newValue.equals(ProgramState.SONG_PLAYING) || newValue.equals(ProgramState.ARR_PLAYING)) {
 			        reactPressed(null);
 				} else if (newValue.equals(ProgramState.EDITING) || newValue.equals(ProgramState.ARR_EDITING)) {
@@ -58,19 +65,18 @@ public class PlayPresenter extends ImageRadioButton {
 			}
 		});
 	}
+
 	@Override
-    protected void reactPressed(MouseEvent e) {
-        if (isPressed)
-            return;
-        super.reactPressed(e);
+	protected void reactPressed(MouseEvent e) {
+		if (isPressed)
+			return;
+		super.reactPressed(e);
         if (programState.get() == ProgramState.EDITING) {
         	programState.set(ProgramState.SONG_PLAYING);
-            //TODO: convert startSong
-//            theStaff.startSong();
+        	animationService.restart();
         } else if (programState.get() == ProgramState.ARR_EDITING) {
         	programState.set(ProgramState.ARR_PLAYING);
-            //TODO: convert startArrangement
-//            theStaff.startArrangement();
+        	animationService.restart();
         }
     }
 
